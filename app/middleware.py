@@ -77,22 +77,32 @@ class SubdomainMiddleware:
         Handles:
         - Production: abhay.portfoliopro.site -> 'abhay'
         - Development: localhost:8000/?subdomain=abhay -> 'abhay'
-        - Development: 127.0.0.1:8000/?subdomain=abhay -> 'abhay'
+        - Fallback: anyhost.com/?subdomain=abhay -> 'abhay' (for hosts without wildcard DNS)
         """
         host = request.get_host().lower()
         
         # Remove port if present
         host_without_port = host.split(':')[0]
         
-        # Development mode: check query parameter
+        # Development mode: check query parameter first
         if self._is_local_host(host_without_port):
             subdomain = request.GET.get('subdomain', '').lower().strip()
             if subdomain:
                 return subdomain
             return None
         
-        # Production mode: extract from subdomain
-        return self._extract_subdomain_from_host(host_without_port)
+        # Production mode: try to extract from subdomain first
+        subdomain = self._extract_subdomain_from_host(host_without_port)
+        if subdomain:
+            return subdomain
+        
+        # Fallback: check query parameter for hosts without wildcard DNS support
+        # (e.g., Render free tier: portfoliopro-8rxk.onrender.com/?subdomain=abhay)
+        subdomain = request.GET.get('subdomain', '').lower().strip()
+        if subdomain:
+            return subdomain
+        
+        return None
     
     def _is_local_host(self, host):
         """Check if host is localhost or local IP."""
