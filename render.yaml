@@ -1,0 +1,26 @@
+databases:
+  - name: portfolio-db
+    databaseName: portfolio
+    user: portfolio_user
+    plan: free
+
+services:
+  - type: web
+    name: portfolio-resume
+    runtime: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn resume.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: portfolio-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "Off"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: PYTHON_VERSION
+        value: "3.11.0"
