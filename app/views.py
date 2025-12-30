@@ -687,8 +687,8 @@ def add_experience(request):
         Experience.objects.create(
             user=user,
             company=request.POST.get('company', ''),
-            position=request.POST.get('position', '') or '',
-            timeframe=request.POST.get('timeframe', '') or '',
+            position=request.POST.get('role', '') or request.POST.get('position', '') or '',
+            timeframe=request.POST.get('duration', '') or request.POST.get('timeframe', '') or '',
             description=request.POST.get('description', '') or '',
             order=request.POST.get('order', 0)
         )
@@ -704,8 +704,8 @@ def update_experience(request, pk):
         exp = get_object_or_404(Experience, pk=pk, user=user)
         
         exp.company = request.POST.get('company', exp.company)
-        exp.position = request.POST.get('position', exp.position)
-        exp.timeframe = request.POST.get('timeframe', exp.timeframe)
+        exp.position = request.POST.get('role') or request.POST.get('position', exp.position)
+        exp.timeframe = request.POST.get('duration') or request.POST.get('timeframe', exp.timeframe)
         exp.description = request.POST.get('description', exp.description)
         exp.order = request.POST.get('order', exp.order)
         exp.save()
