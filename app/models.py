@@ -287,6 +287,12 @@ class SiteSettings(models.Model):
     ]
     button_style = models.CharField(max_length=20, choices=BUTTON_STYLE_CHOICES, default="rounded")
     
+    # Coding Activity Section (GitHub/LeetCode stats)
+    show_coding_activity = models.BooleanField(default=False, help_text="Show GitHub/LeetCode contribution graphs")
+    github_username = models.CharField(max_length=100, blank=True, default="", help_text="Your GitHub username")
+    leetcode_username = models.CharField(max_length=100, blank=True, default="", help_text="Your LeetCode username")
+    coding_activity_order = models.IntegerField(default=50, help_text="Order position for coding activity section")
+    
     class Meta:
         verbose_name = "Site Settings"
         verbose_name_plural = "Site Settings"

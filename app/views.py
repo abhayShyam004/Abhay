@@ -573,6 +573,22 @@ def update_profile(request):
     return redirect('admin_panel')
 
 
+@admin_required
+def update_coding_activity(request):
+    """Update coding activity settings (GitHub/LeetCode) - user-scoped"""
+    if request.method == 'POST':
+        user = get_admin_user(request)
+        settings = get_or_create_settings(user)
+        
+        settings.show_coding_activity = 'show_coding_activity' in request.POST
+        settings.github_username = request.POST.get('github_username', '').strip()
+        settings.leetcode_username = request.POST.get('leetcode_username', '').strip()
+        settings.save()
+        messages.success(request, 'Coding activity settings updated!')
+    
+    return redirect('admin_panel')
+
+
 # ============== Contact API ==============
 
 @admin_required

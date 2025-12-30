@@ -1579,6 +1579,31 @@
         </section>
         {% endfor %}
 
+        <!-- Coding Activity Section (No nav link as per user request) -->
+        {% if settings.show_coding_activity and settings.github_username or settings.leetcode_username %}
+        <section class="coding-activity-section reveal" style="padding: 100px 0;">
+            <h2 class="section-heading" data-num="0{{ custom_sections|length|add:6 }}.">Coding Activity</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; margin-top: 50px;">
+                {% if settings.github_username %}
+                <div style="flex: 1; min-width: 300px; max-width: 700px;">
+                    <h3 style="color: var(--lightest-slate); font-size: 1.2rem; margin-bottom: 20px; font-family: var(--font-mono);">
+                        <i class="fab fa-github" style="color: var(--green); margin-right: 10px;"></i>GitHub Contributions
+                    </h3>
+                    <img src="https://ghchart.rshah.org/64ffda/{{ settings.github_username }}" alt="GitHub Contributions" style="width: 100%; border-radius: 8px; background: var(--light-navy); padding: 20px;">
+                </div>
+                {% endif %}
+                {% if settings.leetcode_username %}
+                <div style="flex: 1; min-width: 300px; max-width: 500px;">
+                    <h3 style="color: var(--lightest-slate); font-size: 1.2rem; margin-bottom: 20px; font-family: var(--font-mono);">
+                        <i class="fas fa-code" style="color: #ffa116; margin-right: 10px;"></i>LeetCode Stats
+                    </h3>
+                    <img src="https://leetcard.jacoblin.cool/{{ settings.leetcode_username }}?theme=dark&font=Fira%20Code&ext=heatmap" alt="LeetCode Stats" style="max-width: 100%; border-radius: 8px;">
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
         <!-- Contact Section -->
         <section class="contact-section" id="contact">
             <p class="contact-overline reveal">0{{ custom_sections|length|add:6 }}. What's Next?</p>

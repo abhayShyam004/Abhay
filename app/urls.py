@@ -77,6 +77,7 @@ urlpatterns = [
     
     # Profile API
     path('api/profile/update/', views.update_profile, name='update_profile'),
+    path('api/coding-activity/update/', views.update_coding_activity, name='update_coding_activity'),
     
     # Contact API
     path('api/contact/update/', views.update_contact, name='update_contact'),
