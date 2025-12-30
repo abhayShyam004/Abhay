@@ -686,10 +686,10 @@ def add_experience(request):
         user = get_admin_user(request)
         Experience.objects.create(
             user=user,
-            company=request.POST.get('company'),
-            position=request.POST.get('position'),
-            timeframe=request.POST.get('timeframe'),
-            description=request.POST.get('description'),
+            company=request.POST.get('company', ''),
+            position=request.POST.get('position', '') or '',
+            timeframe=request.POST.get('timeframe', '') or '',
+            description=request.POST.get('description', '') or '',
             order=request.POST.get('order', 0)
         )
         messages.success(request, 'Experience added successfully!')
