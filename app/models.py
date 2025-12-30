@@ -167,7 +167,7 @@ class Project(models.Model):
     )
     title = models.CharField(max_length=200)
     category = models.CharField(max_length=100)
-    url = models.URLField()
+    url = models.URLField(blank=True, default='')
     description = models.TextField(blank=True, default="")
     icon = models.ImageField(upload_to='projects/', blank=True, null=True)
     order = models.IntegerField(default=0)

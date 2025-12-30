@@ -830,10 +830,10 @@ def add_project(request):
         user = get_admin_user(request)
         project = Project.objects.create(
             user=user,
-            title=request.POST.get('title'),
-            category=request.POST.get('category'),
-            url=request.POST.get('url'),
-            description=request.POST.get('description', ''),
+            title=request.POST.get('title', ''),
+            category=request.POST.get('category', ''),
+            url=request.POST.get('url', '') or request.POST.get('project_link', '') or '',
+            description=request.POST.get('description', '') or '',
             order=request.POST.get('order', 0)
         )
         if 'icon' in request.FILES:
