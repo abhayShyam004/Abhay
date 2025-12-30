@@ -1018,9 +1018,9 @@
                                     }
                                 </script>
                             <div class="form-group">
-                                <label>AI Assistant Script <i class="fas fa-info info-icon" data-desc="Copy and paste the JavaScript snippet provided by your AI chatbot service (e.g., Chatbase) to enable the chat widget on your site." data-example="&lt;script&gt;...&lt;/script&gt;"></i></label>
-                                <textarea name="ai_assistant_script" class="form-control" style="min-height: 150px; font-family: monospace; font-size: 0.9rem;" placeholder="<script>...</script>">{{ profile.ai_assistant_script }}</textarea>
-                                <small style="color: rgba(255,255,255,0.5);">Paste the full JS snippet provided by your 3rd party AI assistant (e.g., Chatbase).</small>
+                                <label>AI Assistant Script <i class="fas fa-info info-icon" data-title="How to Add an AI Assistant" data-desc="Embed an AI chatbot on your portfolio using a 3rd party service like Chatbase.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Steps to get your script:&lt;/strong&gt;&lt;br&gt;1. Go to &lt;a href='https://www.chatbase.co' target='_blank' style='color: var(--primary);'&gt;chatbase.co&lt;/a&gt; and sign up&lt;br&gt;2. Create a new chatbot and train it with your resume/portfolio info&lt;br&gt;3. Customize its appearance and behavior&lt;br&gt;4. Go to 'Connect' → 'Embed on website'&lt;br&gt;5. Copy the entire &lt;script&gt; code provided&lt;br&gt;6. Paste it in the field below" data-example="&lt;script&gt;window.embeddedChatbotConfig = {...}&lt;/script&gt;"></i></label>
+                                <textarea name="ai_assistant_script" class="form-control" style="min-height: 150px; font-family: monospace; font-size: 0.9rem;" placeholder="Paste your chatbot embed script here...">{{ profile.ai_assistant_script }}</textarea>
+                                <small style="color: rgba(255,255,255,0.5);">Paste the full JS snippet from your AI assistant provider (Chatbase, Botpress, etc.)</small>
                             </div>
                             
                             <div style="text-align: right; margin-top: 20px;">
@@ -1052,13 +1052,13 @@
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label><i class="fab fa-github" style="margin-right: 8px;"></i>GitHub Username</label>
-                                    <input type="text" name="github_username" value="{{ settings.github_username }}" class="form-control" placeholder="e.g. abhayShyam004">
+                                    <label><i class="fab fa-github" style="margin-right: 8px;"></i>GitHub Username <i class="fas fa-info info-icon" data-title="GitHub Contributions" data-desc="This displays your GitHub contribution graph on your portfolio.&lt;br&gt;&lt;br&gt;&lt;strong&gt;How to find your username:&lt;/strong&gt;&lt;br&gt;1. Go to &lt;a href='https://github.com' target='_blank' style='color: var(--primary);'&gt;github.com&lt;/a&gt;&lt;br&gt;2. Log in to your account&lt;br&gt;3. Your username is in the URL: github.com/&lt;strong&gt;yourusername&lt;/strong&gt;&lt;br&gt;4. Or click your profile picture → Your username is shown" data-example="octocat"></i></label>
+                                    <input type="text" name="github_username" value="{{ settings.github_username }}" class="form-control" placeholder="e.g. octocat">
                                     <small style="opacity: 0.5;">Your GitHub username to display contribution graph</small>
                                 </div>
                                 <div class="form-group">
-                                    <label><i class="fas fa-code" style="margin-right: 8px; color: #ffa116;"></i>LeetCode Username</label>
-                                    <input type="text" name="leetcode_username" value="{{ settings.leetcode_username }}" class="form-control" placeholder="e.g. abhay123">
+                                    <label><i class="fas fa-code" style="margin-right: 8px; color: #ffa116;"></i>LeetCode Username <i class="fas fa-info info-icon" data-title="LeetCode Stats" data-desc="This displays your LeetCode statistics and heatmap on your portfolio.&lt;br&gt;&lt;br&gt;&lt;strong&gt;How to find your username:&lt;/strong&gt;&lt;br&gt;1. Go to &lt;a href='https://leetcode.com' target='_blank' style='color: #ffa116;'&gt;leetcode.com&lt;/a&gt;&lt;br&gt;2. Log in to your account&lt;br&gt;3. Click your profile icon → View Profile&lt;br&gt;4. Your username is in the URL: leetcode.com/u/&lt;strong&gt;yourusername&lt;/strong&gt;" data-example="coderX"></i></label>
+                                    <input type="text" name="leetcode_username" value="{{ settings.leetcode_username }}" class="form-control" placeholder="e.g. coderX">
                                     <small style="opacity: 0.5;">Your LeetCode username to display stats card</small>
                                 </div>
                             </div>
@@ -2771,13 +2771,14 @@
                 const rect = icon.getBoundingClientRect();
                 const desc = icon.getAttribute('data-desc');
                 const example = icon.getAttribute('data-example');
-                const label = icon.parentElement.textContent.replace(icon.textContent, '').trim(); // Get label text only
+                const customTitle = icon.getAttribute('data-title');
+                const label = customTitle || icon.parentElement.textContent.replace(icon.textContent, '').trim();
 
-                // Populate content
+                // Populate content (use innerHTML for rich content with links/formatting)
                 tooltipTitle.textContent = label;
-                tooltipContent.textContent = desc;
+                tooltipContent.innerHTML = desc || '';
                 if (example) {
-                    tooltipExample.textContent = "Example: " + example;
+                    tooltipExample.innerHTML = "Example: " + example;
                     tooltipExample.style.display = 'block';
                 } else {
                     tooltipExample.style.display = 'none';
