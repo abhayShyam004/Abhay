@@ -129,4 +129,10 @@ urlpatterns = [
     path('api/custom-item/<int:section_id>/add/', views.add_custom_item, name='add_custom_item'),
     path('api/custom-item/<int:pk>/update/', views.update_custom_item, name='update_custom_item'),
     path('api/custom-item/<int:pk>/delete/', views.delete_custom_item, name='delete_custom_item'),
+    
+    # Analytics API
+    path('api/analytics/', views.get_analytics, name='get_analytics'),
+    
+    # GitHub Import API
+    path('api/import-github/', views.import_github_projects, name='import_github_projects'),
 ]

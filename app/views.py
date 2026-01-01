@@ -131,6 +131,14 @@ def portfolio_view(request):
     if tenant.is_banned:
         raise Http404("This portfolio is not available.")
     
+    # Track page view for analytics (don't track the owner viewing their own portfolio)
+    try:
+        if not request.user.is_authenticated or request.user.id != tenant.id:
+            from .models import PageView
+            PageView.create_from_request(request, tenant)
+    except Exception:
+        pass  # Don't let tracking errors break the page
+    
     # Get user-scoped data
     profile = get_or_create_profile(tenant)
     contact = get_or_create_contact(tenant)
@@ -799,6 +807,7 @@ def add_skill(request):
             name=request.POST.get('name'),
             category=request.POST.get('category'),
             description=request.POST.get('description', ''),
+            icon_url=request.POST.get('icon_url', ''),  # Support external icon URLs
             order=request.POST.get('order', 0)
         )
         if 'icon' in request.FILES:
@@ -1202,4 +1211,150 @@ def edit_section(request, pk):
         return JsonResponse({'status': 'success', 'message': 'Section updated successfully'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+# ============== Analytics API ==============
+
+@admin_required
+def get_analytics(request):
+    """Get analytics data for the current user's portfolio"""
+    from .models import PageView
+    from django.db.models import Count
+    from django.db.models.functions import TruncDate
+    from datetime import timedelta
+    from django.utils import timezone
+    
+    user = get_admin_user(request)
+    now = timezone.now()
+    
+    # Time ranges
+    last_7_days = now - timedelta(days=7)
+    last_30_days = now - timedelta(days=30)
+    
+    # Base queryset
+    views = PageView.objects.filter(user=user)
+    
+    # Total stats
+    total_views = views.count()
+    views_7_days = views.filter(timestamp__gte=last_7_days).count()
+    views_30_days = views.filter(timestamp__gte=last_30_days).count()
+    
+    # Unique visitors (by visitor_id)
+    unique_visitors = views.values('visitor_id').distinct().count()
+    unique_7_days = views.filter(timestamp__gte=last_7_days).values('visitor_id').distinct().count()
+    unique_30_days = views.filter(timestamp__gte=last_30_days).values('visitor_id').distinct().count()
+    
+    # Views by day (last 30 days) for chart
+    views_by_day = list(
+        views.filter(timestamp__gte=last_30_days)
+        .annotate(date=TruncDate('timestamp'))
+        .values('date')
+        .annotate(count=Count('id'))
+        .order_by('date')
+    )
+    # Convert dates to strings for JSON
+    for item in views_by_day:
+        item['date'] = item['date'].strftime('%Y-%m-%d') if item['date'] else None
+    
+    # Device breakdown
+    devices = list(
+        views.filter(timestamp__gte=last_30_days)
+        .exclude(device_type='')
+        .values('device_type')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+    
+    # Browser breakdown
+    browsers = list(
+        views.filter(timestamp__gte=last_30_days)
+        .exclude(browser='')
+        .values('browser')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+    
+    # OS breakdown  
+    operating_systems = list(
+        views.filter(timestamp__gte=last_30_days)
+        .exclude(os='')
+        .values('os')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+    
+    # Top referrers
+    referrers = list(
+        views.filter(timestamp__gte=last_30_days)
+        .exclude(referer_domain='')
+        .values('referer_domain')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+    
+    # Recent views (last 10)
+    recent_views = list(
+        views.order_by('-timestamp')[:10]
+        .values('timestamp', 'device_type', 'browser', 'os', 'referer_domain', 'country')
+    )
+    for item in recent_views:
+        item['timestamp'] = item['timestamp'].strftime('%Y-%m-%d %H:%M') if item['timestamp'] else None
+    
+    return JsonResponse({
+        'summary': {
+            'total_views': total_views,
+            'views_7_days': views_7_days,
+            'views_30_days': views_30_days,
+            'unique_visitors': unique_visitors,
+            'unique_7_days': unique_7_days,
+            'unique_30_days': unique_30_days,
+        },
+        'views_by_day': views_by_day,
+        'devices': devices,
+        'browsers': browsers,
+        'operating_systems': operating_systems,
+        'referrers': referrers,
+        'recent_views': recent_views,
+    })
+
+
+# ============== GitHub Import API ==============
+
+@admin_required
+def import_github_projects(request):
+    """Import projects from GitHub repos data"""
+    import json
+    from .models import Project
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST required'}, status=405)
+    
+    try:
+        user = get_admin_user(request)
+        data = json.loads(request.body)
+        repos = data.get('repos', [])
+        
+        imported_count = 0
+        for repo in repos:
+            # Create a new project for each selected repo
+            # Model fields: user, title, category, url, description, icon, order
+            Project.objects.create(
+                user=user,
+                title=repo.get('title', 'Untitled'),
+                description=repo.get('description', ''),
+                category=repo.get('category', 'GitHub'),
+                url=repo.get('project_link', ''),  # GitHub repo URL
+            )
+            imported_count += 1
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Successfully imported {imported_count} project(s)',
+            'imported': imported_count
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)
 

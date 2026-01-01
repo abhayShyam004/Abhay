@@ -7,8 +7,306 @@
 /* This file exists for consistency with the theme system */
 
 body.theme-classic {
-    /* Classic theme uses default variables from styles.css */
+    /* Classic theme inherits default variables from styles.css */
+    --theme-id: "classic";
 }
 
-/* Classic theme doesn't need additional styles - 
-   it uses the existing CSS in styles.css and enhancements.css */
+/* =================================================================
+ * # CLASSIC THEME - MOBILE OPTIMIZATIONS
+ * Replace text with icons on mobile for better UX
+ * ================================================================= */
+
+/* Hide text labels on mobile, show icons only */
+@media screen and (max-width: 768px) {
+    
+    /* ----------------------------------------
+     * NAVIGATION - Compact on mobile
+     * ---------------------------------------- */
+    .main-nav ul li a {
+        font-size: 0.85rem;
+        padding: 10px 8px;
+    }
+    
+    /* ----------------------------------------
+     * INTRO SECTION - Push social links to bottom
+     * ---------------------------------------- */
+    .s-intro {
+        position: relative !important;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh !important;
+        min-height: 100dvh !important; /* Dynamic viewport height for mobile */
+    }
+    
+    .s-intro .intro-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    /* Social links at bottom of intro viewport */
+    .s-intro .intro-social,
+    ul.intro-social {
+        position: absolute !important;
+        bottom: 80px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        top: auto !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 0 20px;
+        margin: 0 !important;
+        list-style: none;
+        z-index: 10;
+        width: auto;
+    }
+    
+    .intro-social li {
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Keep original subtle text style - no icons */
+    .intro-social li a {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        transition: color 0.3s ease;
+    }
+    
+    .intro-social li a:hover {
+        color: var(--color-1, #eabe7c);
+    }
+    
+    /* ----------------------------------------
+     * CONTACT SOCIAL - Text only (no icons)
+     * ---------------------------------------- */
+    body.theme-classic .contact-social {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body.theme-classic .contact-social li {
+        padding: 0;
+    }
+    
+    /* Show text, not icons */
+    body.theme-classic .contact-social li a {
+        font-size: 1.1rem !important; /* Made bigger */
+        font-weight: 600 !important;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: color 0.3s ease;
+        background: none !important;
+        width: auto !important;
+        height: auto !important;
+        border-radius: 0 !important;
+        display: inline-block !important; /* Reset display */
+        padding: 5px 0 !important;
+    }
+    
+    /* Remove icon pseudo-elements */
+    body.theme-classic .contact-social li a::before {
+        display: none !important;
+        content: none !important;
+    }
+    
+    body.theme-classic .contact-social li a:hover {
+        color: var(--color-1, #eabe7c);
+        transform: none;
+        background: none !important;
+    }
+    
+    /* ----------------------------------------
+     * BUTTONS - CENTERED TEXT
+     * ---------------------------------------- */
+    body.theme-classic .btn,
+    body.theme-classic button,
+    body.theme-classic input[type="submit"],
+    body.theme-classic input[type="reset"],
+    body.theme-classic input[type="button"],
+    body.theme-classic .contact-btn,
+    body.theme-classic .about-info .btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        /* Ensure normal line height doesn't mess up flex centering */
+        line-height: normal !important; 
+    }
+
+    /* ----------------------------------------
+     * DOWNLOAD CV BUTTON - Bigger text
+     * ---------------------------------------- */
+    body.theme-classic .about-info .btn,
+    body.theme-classic .btn.u-fullwidth,
+    body.theme-classic a.btn[href*="drive"],
+    body.theme-classic a.btn[href*="cv"],
+    body.theme-classic a.btn[href*="resume"] {
+        font-size: 1.25rem !important; /* Significantly bigger */
+        letter-spacing: 0.15em !important;
+        font-weight: 700 !important;
+        min-height: 60px !important;
+        padding: 0 30px !important; /* Horizontal padding only */
+    }
+    
+    /* ----------------------------------------
+     * SAY HELLO BUTTON - Bigger and bolder
+     * ---------------------------------------- */
+    body.theme-classic .contact-btn,
+    body.theme-classic .s-contact .btn {
+        font-size: 1.4rem !important; /* Significantly bigger */
+        font-weight: 800 !important;
+        letter-spacing: 0.15em !important;
+        min-height: 64px !important;
+        padding: 0 32px !important;
+    }
+    
+    /* ----------------------------------------
+     * BUTTONS - GENERAL MOBILE SIZING
+     * ---------------------------------------- */
+    body.theme-classic .btn,
+    body.theme-classic button,
+    body.theme-classic input[type="submit"],
+    body.theme-classic input[type="reset"],
+    body.theme-classic input[type="button"] {
+        min-height: 50px !important;
+        font-size: 0.95rem !important;
+        letter-spacing: 0.2em;
+    }
+    
+    /* ----------------------------------------
+     * TIMELINE - HUGE TEXT for Mobile
+     * ---------------------------------------- */
+    body.theme-classic .timeline__title {
+        font-size: 24px !important; /* Using PX to be absolutely sure */
+        font-weight: 700 !important;
+        margin-bottom: 8px !important;
+        line-height: 1.3 !important;
+    }
+    
+    body.theme-classic .timeline__meta {
+        font-size: 20px !important; /* Using PX to be absolutely sure */
+        font-weight: 600 !important;
+        margin-bottom: 8px !important;
+        display: block !important;
+        line-height: 1.3 !important;
+    }
+    
+    body.theme-classic .timeline__timeframe {
+        font-size: 18px !important; /* Using PX to be absolutely sure */
+        font-weight: 500 !important;
+        font-style: italic;
+        margin-bottom: 15px !important;
+        display: block !important;
+    }
+    
+    body.theme-classic .timeline__desc {
+        font-size: 18px !important; /* Using PX to be absolutely sure */
+        line-height: 1.6 !important;
+    }
+    
+    body.theme-classic .timeline__block {
+        margin-bottom: 40px !important; /* More space between items */
+    }
+    
+    /* ----------------------------------------
+     * CODING ACTIVITY - Bigger headings
+     * ---------------------------------------- */
+    body.theme-classic #coding-activity h4,
+    body.theme-classic .s-about h4[style*="GitHub"],
+    body.theme-classic .s-about h4[style*="LeetCode"],
+    body.theme-classic div[style*="GitHub Contributions"] h4,
+    body.theme-classic div[style*="LeetCode Stats"] h4 {
+        font-size: 24px !important; /* Much bigger */
+        font-weight: 700 !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* ----------------------------------------
+     * MOBILE SCROLL INDICATOR
+     * ---------------------------------------- */
+    .intro-scrolldown {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* ----------------------------------------
+     * GO TO TOP BUTTON - Touch friendly
+     * ---------------------------------------- */
+    .ss-go-top a {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Extra small screens (phones in portrait) */
+@media screen and (max-width: 480px) {
+    
+    /* Smaller text for extra small screens */
+    .intro-social li a {
+        font-size: 0.75rem;
+    }
+    
+    .contact-social li a {
+        font-size: 0.85rem !important;
+    }
+    
+    /* Smaller buttons but still touch-friendly */
+    .btn,
+    button {
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    
+    /* Keep important buttons readable */
+    .contact-btn,
+    .s-contact .btn {
+        font-size: 1rem !important;
+    }
+    
+    .about-info .btn {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Remove hover effects that don't work on touch */
+    .intro-social li a:hover,
+    .contact-social li a:hover,
+    .folio-list__item-link:hover {
+        transform: none;
+    }
+    
+    /* Add active states for touch feedback */
+    .intro-social li a:active,
+    .contact-social li a:active {
+        transform: scale(0.95);
+        background: var(--color-1, #eabe7c);
+    }
+    
+    .btn:active,
+    button:active {
+        transform: scale(0.98);
+    }
+}

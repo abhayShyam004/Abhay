@@ -145,6 +145,7 @@ class Skill(models.Model):
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
     icon = models.ImageField(upload_to='skills/', blank=True, null=True)
+    icon_url = models.URLField(blank=True, default="", help_text="External icon URL (e.g., from DevIcon)")
     description = models.TextField(blank=True, default="")
     order = models.IntegerField(default=0)
 
@@ -454,3 +455,117 @@ class CustomItem(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class PageView(models.Model):
+    """Track portfolio page views for analytics"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='page_views',
+        help_text="The portfolio owner being viewed"
+    )
+    # Visitor identification (hashed IP for privacy)
+    visitor_id = models.CharField(max_length=64, db_index=True, help_text="Hashed visitor identifier")
+    
+    # Page info
+    path = models.CharField(max_length=500, default="/")
+    section = models.CharField(max_length=100, blank=True, default="", help_text="Which section was viewed")
+    
+    # Visitor info
+    country = models.CharField(max_length=100, blank=True, default="")
+    city = models.CharField(max_length=100, blank=True, default="")
+    device_type = models.CharField(max_length=20, blank=True, default="", help_text="desktop, mobile, tablet")
+    browser = models.CharField(max_length=100, blank=True, default="")
+    os = models.CharField(max_length=100, blank=True, default="")
+    
+    # Referrer
+    referer = models.URLField(blank=True, default="", help_text="Where the visitor came from")
+    referer_domain = models.CharField(max_length=200, blank=True, default="")
+    
+    # Timestamp
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', 'timestamp']),
+            models.Index(fields=['user', 'visitor_id']),
+        ]
+    
+    def __str__(self):
+        return f"View on {self.user.subdomain} at {self.timestamp}"
+    
+    @classmethod
+    def create_from_request(cls, request, portfolio_user):
+        """Create a PageView from a request object"""
+        import hashlib
+        from urllib.parse import urlparse
+        
+        # Get IP address
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR', '')
+        
+        # Hash IP for privacy (with a salt based on user)
+        salt = str(portfolio_user.id)
+        visitor_id = hashlib.sha256(f"{ip}{salt}".encode()).hexdigest()[:32]
+        
+        # Parse user agent
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        device_type = 'desktop'
+        browser = ''
+        os_name = ''
+        
+        ua_lower = user_agent.lower()
+        if 'mobile' in ua_lower or 'android' in ua_lower and 'mobile' in ua_lower:
+            device_type = 'mobile'
+        elif 'tablet' in ua_lower or 'ipad' in ua_lower:
+            device_type = 'tablet'
+        
+        # Simple browser detection
+        if 'chrome' in ua_lower and 'edg' not in ua_lower:
+            browser = 'Chrome'
+        elif 'firefox' in ua_lower:
+            browser = 'Firefox'
+        elif 'safari' in ua_lower and 'chrome' not in ua_lower:
+            browser = 'Safari'
+        elif 'edg' in ua_lower:
+            browser = 'Edge'
+        else:
+            browser = 'Other'
+        
+        # Simple OS detection
+        if 'windows' in ua_lower:
+            os_name = 'Windows'
+        elif 'mac' in ua_lower:
+            os_name = 'macOS'
+        elif 'linux' in ua_lower:
+            os_name = 'Linux'
+        elif 'android' in ua_lower:
+            os_name = 'Android'
+        elif 'iphone' in ua_lower or 'ipad' in ua_lower:
+            os_name = 'iOS'
+        
+        # Parse referer
+        referer = request.META.get('HTTP_REFERER', '')
+        referer_domain = ''
+        if referer:
+            try:
+                parsed = urlparse(referer)
+                referer_domain = parsed.netloc
+            except:
+                pass
+        
+        return cls.objects.create(
+            user=portfolio_user,
+            visitor_id=visitor_id,
+            path=request.path,
+            device_type=device_type,
+            browser=browser,
+            os=os_name,
+            referer=referer[:200] if referer else '',
+            referer_domain=referer_domain,
+        )

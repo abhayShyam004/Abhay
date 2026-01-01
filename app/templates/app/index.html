@@ -13,6 +13,25 @@
     ================================================== -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Critical CSS: Prevent white flash by setting dark background IMMEDIATELY -->
+    <style>
+        html, body {
+            background-color: #141516 !important;
+        }
+        html.theme-loading {
+            opacity: 1 !important;
+        }
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #141516;
+            z-index: 99999;
+        }
+    </style>
+
     <!-- CSS
     ================================================== -->
     {% load static %}
@@ -46,6 +65,14 @@
     <!-- Dynamic Theme from Settings -->
     {% if settings %}
     <style>
+        /* Critical: Force dark background and visible html to prevent white flash */
+        html, body {
+            background-color: #141516 !important;
+        }
+        html.theme-loading {
+            opacity: 1 !important;
+        }
+
         :root {
             --color-1: {{ settings.primary_color }};
             --color-2: {{ settings.secondary_color }};
@@ -178,7 +205,64 @@
         }
         
         #preloader {
-            z-index: 9999 !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #141516;
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #loader {
+            display: block;
+            position: relative;
+            left: 50%;
+            top: 50%;
+            width: 150px;
+            height: 150px;
+            margin: -75px 0 0 -75px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--color-1, #eabe7c);
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+        #loader:before {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--color-2, #23967f);
+            -webkit-animation: spin 3s linear infinite;
+            animation: spin 3s linear infinite;
+        }
+        #loader:after {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--color-text-light, #ffffff);
+            -webkit-animation: spin 1.5s linear infinite;
+            animation: spin 1.5s linear infinite;
+        }
+        @-webkit-keyframes spin {
+            0%   { -webkit-transform: rotate(0deg); -ms-transform: rotate(0deg); transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); -ms-transform: rotate(360deg); transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0%   { -webkit-transform: rotate(0deg); -ms-transform: rotate(0deg); transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); -ms-transform: rotate(360deg); transform: rotate(360deg); }
         }
         
         nav,
@@ -187,11 +271,7 @@
             z-index: 100 !important;
         }
         
-        /* Force visibility */
-        * {
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
+
         
         .circles,
         .gradient-bg,
